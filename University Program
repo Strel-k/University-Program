@@ -1,0 +1,391 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<stdbool.h>
+#define admin_name "admin"
+#define admin_pass "1234"
+
+struct User_Information {
+	char name[100];
+	char course[20];
+	char college[4];
+	int grades[10];
+	char password[10];
+	char final[30000];
+}user_info;
+
+struct Teacher_Information {
+	char name[100];
+	char college[4];
+	
+}teacher_info;
+
+struct Course_Info {
+	char Course_name[1000];
+	char College[10];
+	char subjects[10][3000];
+	int total_subjects;
+	char course_final_info[5000];
+}course_info;
+
+void Admin_Screen();
+
+void Student_Screen();
+
+void Teacher_Screen();
+
+void Login_Screen();
+
+void Register_Screen();
+
+void Getch() {
+	printf("\n\t\t\t\t\t");
+	system("pause");
+}
+
+void Clrscr() {
+	system("cls");
+}
+
+int User_Check(char str[],bool student) {
+	FILE* information;
+	bool found;
+	char buffer[3000];
+	if (student == true) {
+		information = fopen("Students.txt", "r+");
+		while (fgets(buffer, sizeof(buffer), information) != NULL) {
+			if (strstr(str, buffer) != NULL) {
+				found = true;
+			}
+		}
+	}
+	else if (student == false) {
+		information = fopen("Teachers.txt", "r+");
+		while (fgets(buffer, sizeof(buffer), information) != NULL) {
+
+		}
+	}
+	return found;
+}
+
+void main() {
+	int choice = NULL;
+	while (choice != 3) {
+		system("cls");
+		printf("\t\t\t\t\tUniversity Portal\n");
+		printf("\t\t\t\t\t[1] Login\n\t\t\t\t\t[2] Register\n\t\t\t\t\t[3] Exit\n");
+		printf("\t\t\t\t\t---> ");
+		scanf("%d", &choice);
+		switch (choice) {
+		case 1: {
+			Login_Screen();
+			break;
+		}
+		case 2: {
+			Register_Screen();
+			break;
+		}
+		case 3: {
+			exit(1);
+		}
+		default: {
+			break;
+		}
+		}
+	}
+	system("pause");
+}
+
+void Register_Screen() {
+	int choice = NULL, course_choice = NULL, current_line = 0,found=0;
+	FILE* course, * student,*user,*user_final;
+	char buffer[2048],chosen_course[3000];
+	bool check, user_student = NULL;
+	while (choice != 3) {
+		printf("\t\t\t\t\tRegister as...?\n");
+		printf("\t\t\t\t\t[1] Student\n\t\t\t\t\t[2] Teacher\n\t\t\t\t\t[3] Exit\n");
+		printf("\t\t\t\t\t---> ");
+		scanf("%d", &choice);
+		if (choice == 1) {
+			user_student = true;
+		}
+		else if (choice == 2) {
+			user_student = false;
+		}
+		Clrscr();
+		printf("\t\t\t\t\tEnter Name:");
+		scanf(" %[^\n]s", user_info.name);
+		printf("\t\t\t\t\tEnter Desired Password:");
+		scanf(" %[^\n]s", user_info.password);
+		course = fopen("Course.txt", "r+");
+		int i = 1;
+		if (course == NULL) {
+			printf("Goodbye World!");
+			system("pause");
+
+			break;
+		}
+		Clrscr();
+		while (fgets(buffer, sizeof(buffer), course) != NULL) {
+			printf("\t\t\t\t\t[%d] %s", i, buffer);
+			i++;
+		}
+		rewind(course);
+		fflush(course);
+		fclose(course);
+		
+		printf("\n\t\t\t\t\tEnter Desired Course\n\t\t\t\t\t---> ");
+		scanf("%d", &course_choice);
+		while (fgets(buffer, sizeof(buffer), course) != NULL) {
+			current_line++;
+			if (current_line == course_choice) {
+				strcpy(user_info.course, buffer);
+				char* newline = strchr(user_info.course, '\n');
+				if (newline != NULL) {
+					*newline = '\0';
+				}
+				found = 1;
+				break;
+			}
+		}
+		fclose(course);
+		check = User_Check(user_info.name,user_student);
+		if (found == 1&&check==false) {
+			strcpy(user_info.final, user_info.name);
+			strcat(user_info.name, ".txt");
+			user = fopen(user_info.name, "w+");
+			strcat(user_info.final, " ");
+			strcat(user_info.final, user_info.password);
+			strcat(user_info.final, " ");
+			fputs(user_info.final, user);
+			fputs(user_info.course, user);
+			fputs(user_info.college, user);
+			if (choice == 1) {
+				user_final = fopen("Students.txt", "a+");
+				fputs(user_info.final, user_final);
+				fputs("\n", user_final);
+				fclose(user_final);
+			}
+			else if (choice == 2) {
+				user_final = fopen("Teachers.txt", "a+");
+				fputs(user_info.final, user_final);
+				fputs("\n", user_final);
+				fclose(user_final);
+			}
+			fclose(user);
+			printf("\t\t\t\t\tUser Registered!\n");
+			Getch();
+			
+			break;
+		}
+	}
+}
+
+void Login_Screen() {
+	int choice = NULL,choice2=NULL;
+	bool is_student = NULL,exists=NULL;
+	char Login_name[1000], Login_Password[1000];
+	while (choice != 4) {
+		system("cls");
+		printf("\t\t\t\t\tUniversity Login\n\t\t\t\t\t[1] Student\n\t\t\t\t\t[2] Teacher\n\t\t\t\t\t[3] Admin\n\t\t\t\t\t[4] Exit\n\t\t\t\t\t");
+		printf("--->");
+		scanf("%d", &choice);
+		switch (choice) {
+		case 1: {
+			is_student = true;
+			system("cls");
+			printf("\t\t\t\t\tUniversity Login\n\t\t\t\t\t\t[1] Student\n\t\t\t\t\t[2] Teacher\n\t\t\t\t\t[3] Exit\n");
+			printf("\t\t\t\t\t---> ");
+			scanf("%d", &choice2);
+			if (choice2 == 1) {
+				is_student = true;
+			}
+			else if (choice2 == 0) {
+				is_student = false;
+			}
+			printf("\t\t\t\t\tEnter Name:");
+			scanf(" %[^\n]s", Login_name);
+			printf("\t\t\t\t\tEnter Password:");
+			scanf(" %[^\n]s", Login_Password);
+			exists = User_Check(Login_name,is_student);
+			
+		}
+		case 2: {
+			is_student = false;
+			system("cls");
+		}
+		case 3: {
+			is_student = false;
+			int found = 0,found2=0;
+			printf("\t\t\t\t\tUniversity Login\n\t\t\t\t\tEnter Name:");
+			scanf(" %[^\n]s", Login_name);
+			printf("\t\t\t\t\tEnter Password:");
+			scanf(" %[^\n]s", Login_Password);
+			if (strcmp(Login_name, admin_name) == 0 ) {
+				found=1;
+			}
+			if (strcmp(Login_Password, admin_pass) == 0) {
+				found2=1;
+			}
+			if (found == 1 && found2 == 1) {
+				Admin_Screen();
+			}
+			else {
+				printf("\t\t\t\t\tLogin Credentials not Found!\n");
+				system("pause");
+				break;
+			}
+		}
+		case 4: {
+			int choice2 = NULL;
+			system("cls");
+			printf("\t\t\t\t\tUniversity Login\n");
+			printf("\t\t\t\t\tReturn to?\n\n\t\t\t\t\t[1] Main Menu\n\t\t\t\t\t[2]Exit\n\t\t\t\t\t");
+			printf("---> ");
+			scanf("%d", &choice2);
+			switch (choice2) {
+			case 1: {
+				main();
+			}
+			case 2: {
+				exit(1);
+			}
+			}
+			
+		}
+		}
+	}
+}
+
+void Admin_Screen() {
+	int choice = NULL;
+	FILE* course,*students,*teachers;
+	char buffer[30000];
+	while (choice != 5) {
+		Clrscr();
+		printf("\t\t\t\t\tAdmin Screen\n\n\t\t\t\t\t[1] Check Courses\n\t\t\t\t\t[2] Add Course\n\t\t\t\t\t[3] View Students\n\t\t\t\t\t[4] View Teachers\n\t\t\t\t\t[5]Exit\n");
+		printf("\t\t\t\t\t---> ");
+		scanf("%d", &choice);
+		switch (choice) {
+		case 1: {
+			system("cls");
+			int i = 1, course_choice, current_line = 0,found=0;
+			char see_course[1000],program_name[1000];
+			printf("\t\t\t\t\tUniversity Courses Offered:\n");
+			course = fopen("Course.txt", "r+");
+			if (course == NULL) {
+				printf("Goodbye WOrld!");
+				system("pause");
+				break;
+			}
+			while (fgets(buffer, sizeof(buffer), course) != NULL) {
+				printf("\t\t\t\t\t[%d] %s", i, buffer);
+				i++;
+			}
+			rewind(course);
+			fclose(course);
+			printf("\t\t\t\t\t---> ");
+			scanf("%d", &course_choice);
+			course = fopen("Course.txt", "r+");
+			while (fgets(buffer, sizeof(buffer), course) != NULL) {
+				current_line++;
+				if (current_line == course_choice) {
+					strcpy(program_name, buffer);
+					found = 1;
+					char* newline = strchr(program_name, '\n');
+					if (newline != NULL) {
+						*newline = '\0';
+					}
+
+					break;
+				}
+			}
+			rewind(course);
+			fflush(course);
+			fclose(course);
+			if (found == 1) {
+				strcpy(see_course, program_name);
+				strcat(see_course, ".txt");
+				course = fopen(see_course, "r+");
+				i = 0;
+				if (course == NULL) {
+					printf("\n\t\t\t\t\tCourse file %s not found!\n", see_course);
+					Getch();
+					break;
+				}
+				Clrscr();
+				printf("\t\t\t\t\tSubjects Offered by Course (%s)\n\n", program_name);
+					while (fgets(buffer, sizeof(buffer), course) != NULL) {
+						printf("\t\t\t\t\t[%d] %s", (i + 1), buffer);
+						i++;
+					}
+					fclose(course); // Close the course file after reading.
+					printf("\n\n\t\t\t\t\t\n");
+			}
+			else {
+				printf("\t\t\t\t\tCourse not Found!\n");
+				system("pause");
+				break;
+			}
+			printf("\n\t\t\t\t\t");
+			Getch();
+			break;
+		}
+		case 2: {
+			system("cls");
+			course = fopen("Course.txt", "a+");
+			printf("\t\t\t\t\tUniversity Adinistration\n\n");
+			printf("\t\t\t\t\tEnter Course Name:");
+			scanf(" %[^\n]s", course_info.Course_name);
+			printf("\t\t\t\t\tEnter Colllege Under:");
+			scanf(" %[^\n]s", course_info.College);
+			printf("\t\t\t\t\tEnter Total Subjects:");
+			scanf("%d", &course_info.total_subjects);
+			fputs(course_info.Course_name, course);
+			fputs("\n", course);
+			fclose(course);
+			strcat(course_info.Course_name, ".txt");
+			course = fopen(course_info.Course_name, "w+");
+			for (int i = 0; i < course_info.total_subjects; i++) {
+				printf("\t\t\t\t\tEnter Subject:");
+				scanf(" %[^\n]s", course_info.subjects[i]);
+				if (strlen(course_info.subjects[i]) > 10) {
+					printf("\t\t\t\t\tError, Length of Subject name too long!\n\t\t\t\t\t");
+					Getch();
+					break;
+				}
+				fputs(course_info.subjects[i], course);
+				fputs("\n", course);
+			}
+			fclose(course);
+			printf("\t\t\t\t\tCourse Added to Curriculum!\n");
+			Getch();
+			break;
+		}
+		case 3: {
+			Clrscr();
+			printf("Goodbye World!");
+			Getch();
+			break;
+		}
+		case 4: {
+			Clrscr();
+			printf("Goodbye World!");
+			Getch();
+			break;
+		}
+		}
+	}
+}
+
+void Student_Screen() {
+	Clrscr();
+	printf("Goodbye World!");
+	Getch();
+}
+
+void Teacher_Screen() {
+	Clrscr();
+	printf("Goodbye World!");
+	Getch();
+}
